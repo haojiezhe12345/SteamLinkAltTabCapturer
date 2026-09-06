@@ -8,7 +8,6 @@
 // Module-scope state
 // ============================================================================
 
-static HMODULE       g_hMod       = NULL;
 static HWND          g_sdlHwnd    = NULL;
 static SDL_Window*   g_pWin       = NULL;
 static BOOL          g_grabbed    = FALSE;
@@ -80,7 +79,7 @@ static DWORD WINAPI MonitorThread(LPVOID lpParam)
     }
 
     PatchBin();
-    Log("Watching for SDL_app windows...");
+    Log("Watching for SDL_app windows... (tid=%lu)", GetCurrentThreadId());
 
     BOOL wasAttached = FALSE;
 
@@ -125,8 +124,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
     switch (ulReasonForCall)
     {
     case DLL_PROCESS_ATTACH:
-        g_hMod = hModule;
         DisableThreadLibraryCalls(hModule);
+        Log("Attached to tid: %lu", GetCurrentThreadId());
         g_hThread = CreateThread(NULL, 0, MonitorThread, NULL, 0, NULL);
         break;
 
@@ -134,11 +133,25 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
         InterlockedExchange(&g_quit, 1);
         if (g_hThread)
         {
+            // CRUCIAL - DO NOT REMOVE THIS SPIN LOCK
+			// Unloading the DLL before its thread exits will cause Access Violation.
             for (;;) {
-                if (g_threadExit) break;
+                // Why use spinlock:
+                // When unloading the DLL manually, MonitorThread will NOT exit until the DLL has been fully unloaded, even after the thread function returns a value.
+                // So we can't rely on WaitForSingleObject here. It will hang forever.
+                if (g_threadExit)
+                {
+                    Sleep(100); // Ensure the thread has actually stopped executing code
+                    break;
+                }
+                // We still have to check whether the thread is alive because:
+				// When the process is exiting, our MonitorThread will be terminated by the system before g_threadExit is set to true.
+                // In such circumstances, checking for g_threadExit will hang forever.
+				// If we hang here, the process will not be able to exit because our DLL stucks unloading.
+                DWORD waitResult = WaitForSingleObject(g_hThread, 0);
+				if (waitResult == WAIT_OBJECT_0) break;
                 Sleep(100);
             }
-            Sleep(100);
             CloseHandle(g_hThread);
             g_hThread = NULL;
         }

@@ -68,7 +68,7 @@ static BOOL InjectDll(HANDLE hProcess, const std::wstring& dllPath)
         return FALSE;
     }
 
-    WaitForSingleObject(hThread, 10000);
+    WaitForSingleObject(hThread, 5000);
 
     DWORD exitCode = 0;
     GetExitCodeThread(hThread, &exitCode);
@@ -118,6 +118,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     {
         ReportError(L"DLL injection failed (%lu).", GetLastError());
     }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
 
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
