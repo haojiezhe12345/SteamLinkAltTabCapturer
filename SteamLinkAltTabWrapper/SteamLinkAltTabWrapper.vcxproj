@@ -129,6 +129,14 @@
   <ItemGroup>
     <ClCompile Include="SteamLinkAltTabWrapper.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="scripts\Setup.bat">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="scripts\Uninstall.bat">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
