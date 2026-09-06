@@ -1,6 +1,6 @@
 # Steam Link Shortcut Key Capturer
 
-Let Steam Link forward system keyboard shortcuts (Alt+Tab, Win+D, Ctrl+Esc, etc.) to the remote host.
+Let Steam Link forward system keyboard shortcuts (Alt+Tab, Win+D, Ctrl+Esc, etc.) to the remote host. For remote desktop use.
 
 ## Usage
 
@@ -10,7 +10,11 @@ Download and extract `SteamLinkAltTabCapturer.zip` from releases.
 
 ### Install
 
-Run `Setup.bat` **as Administrator**. This registers the wrapper as a debugger for `SteamLink.exe`:
+Run `Setup.bat` **as Administrator**.
+
+<img width="757" height="519" alt="image" src="https://github.com/user-attachments/assets/e4cbea03-7ac7-4d48-9ef3-e7787c02c773" />
+
+This registers the wrapper as a debugger for `SteamLink.exe`:
 
 ```
 HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\SteamLink.exe
@@ -23,13 +27,26 @@ Every time Steam Link starts, the wrapper injects the DLL automatically.
 
 Run `Uninstall.bat` as Administrator. This removes the above registry key.
 
-### Manual injection
+### Advanced usage
 
-If you have a DLL injector, inject `SteamLinkAltTabCapturerDll.dll` into `SteamLink.exe` after it starts. The DLL's monitor thread will detect the SDL window automatically.
+#### Manual launch
+
+You can launch the wrapper directly without registering it as a debugger:
+```
+SteamLinkAltTabWrapper.exe "C:\Program Files (x86)\Steam Link\SteamLink.exe"
+```
+
+#### Manual injection
+
+If you have a DLL injector (e.g. Process Hacker, System Informer), inject `SteamLinkAltTabCapturerDll.dll` into `SteamLink.exe` after it starts. The DLL's monitor thread will detect the SDL (streaming) window automatically.
 
 ### Toggle keyboard capture on / off
 
-After the DLL is injected, start a streaming session, keyboard grab will be enabled automatically. You can toggle it on/off via:
+After the DLL is injected, start a streaming session, keyboard grab will be enabled automatically.  
+You can toggle it on/off by **right-clicking the window title**:
+
+<img width="505" height="228" alt="image" src="https://github.com/user-attachments/assets/2397aa97-405d-46ae-b04e-90a83e899d5f" />
+
 
 | Action | Trigger |
 |--------|---------|
