@@ -17,7 +17,7 @@ reg delete %IFEO_KEY% /v Debugger /f
 if %errorLevel% equ 0 (
     echo Done. IFEO debugger removed.
 ) else (
-    echo Nothing to remove (key may not exist).
+    echo Nothing to remove ^(key may not exist^).
 )
 
 pause
